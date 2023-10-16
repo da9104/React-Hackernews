@@ -4,7 +4,7 @@ import './App.css'
 
 function App() {
   const [results, setResults] = useState([])
-  const [query, setQuery] = useState('chatgpt')
+  const [query, setQuery] = useState('next.js')
 
   useEffect(() => {
     getResults()
@@ -13,20 +13,24 @@ function App() {
     //   setResults(res.data.hits)
     // })
     // .catch(err => console.log(err))
-  }, [query]) // will go to infinite loop. 
+  }, []) // will go to infinite loop. 
         // we only want to run once when the component mounted, 
 
  const getResults = async () => {
   const response = await axios.get(
     `http://hn.algolia.com/api/v1/search?query=${query}`
     )
-   console.log(response.data.hits)
+   // console.log(response.data.hits)
    setResults(response.data.hits)
  }
 
- const handleSubmit = () => {
+ const handleSubmit = (e) => {
+  e.preventDefault()
+  getResults()
+  setQuery('')
   // event.target.value
  }
+
   return (
     <>
      <h1 className='text-lg font-bold uppercase underline'>Vite + React Hacker news</h1>
