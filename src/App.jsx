@@ -4,7 +4,7 @@ import './App.css'
 
 function App() {
   const [results, setResults] = useState([])
-  const [query, setQuery] = useState('chat gpt')
+  const [query, setQuery] = useState('chatgpt')
 
   useEffect(() => {
     getResults()
