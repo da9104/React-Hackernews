@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import './App.css'
 
 function App() {
   const [results, setResults] = useState([])
   const [query, setQuery] = useState('next.js')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const searchQueryRef = useRef()
 
   useEffect(() => {
     getResults()
@@ -17,11 +20,18 @@ function App() {
         // we only want to run once when the component mounted, 
 
  const getResults = async () => {
-  const response = await axios.get(
-    `http://hn.algolia.com/api/v1/search?query=${query}`
-    )
-   // console.log(response.data.hits)
-   setResults(response.data.hits)
+  setLoading(true)
+  try {
+    const response = await axios.get(
+      `http://hn.algolia.com/api/v1/search?query=${query}`
+      )
+     // console.log(response.data.hits)
+     setResults(response.data.hits)
+  } catch (err) {
+    console.log(err)
+    setError(err)
+  }
+    setLoading(false)
  }
 
  const handleSubmit = (e) => {
@@ -31,17 +41,30 @@ function App() {
   // event.target.value
  }
 
+ const handleClear = () => {
+  setQuery("")
+  searchQueryRef.current.focus()
+ }
+
   return (
     <>
      <h1 className='text-lg font-bold uppercase underline'>Vite + React Hacker news</h1>
      <form onSubmit={handleSubmit}>
-     <input type="text" value={query}  onChange={event => setQuery(event.target.value)} />
+     <input
+      type="text" 
+      value={query} 
+      ref={searchQueryRef}
+      onChange={event => setQuery(event.target.value)} />
      <button type='submit'>Search</button>
+     <button type='button' onClick={handleClear}>Clear</button>
      </form>
+
+  {error && <div className='text-red-700 font-extrabold'> {error.message} </div>}
    
+  {loading ? (<div className='text-blue-700 font-extrabold'> Loading... </div>) : (
   <div className='flex flex-col items-center justify-center min-h-screen'>  
   {results.map((result) => (
-  <div key={result.objectID} className="rounded-xl border p-5 shadow-md w-9/12 bg-white mb-3">
+ <div key={result.objectID} className="rounded-xl border p-5 shadow-md w-9/12 bg-white mb-3">
     <div  className="flex w-full items-center justify-between border-b pb-3">
       <div className="flex items-center space-x-3">
         <div className="h-8 w-8 rounded-full bg-slate-400 bg-[url('https://i.pravatar.cc/32')]"></div>
@@ -81,6 +104,7 @@ function App() {
   </div>
     ))}
 </div>
+)}
     </>
   )
 }
